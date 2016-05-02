@@ -182,6 +182,17 @@ describe('Hook', () => {
             assert.throws(() => hook.define('foo-bar', { observedAttributes: function () {} }), Error);
         });
 
+        it ('should call attributeChangedCallback with element as `this`', () => {
+            const spy = sinon.spy();
+            hook.define('foo-bar', {
+                observedAttributes: ['foo'],
+                attributeChangedCallback: spy
+            });
+            const node = hook.create('foo-bar');
+            hook.setAttribute(node, 'foo', 'buzz');
+            assert.strictEqual(spy.firstCall.thisValue, node);
+        });
+
         it ('should notify about adding an observed attribute', () => {
             const spy = sinon.spy();
             hook.define('foo-bar', {
@@ -261,14 +272,112 @@ describe('Hook', () => {
 
     // https://w3c.github.io/webcomponents/spec/custom/#upgrades
     describe('upgrade', () => {
-        it('should trigger the callbacks for all the observed attributes');
+        beforeEach(() => {
+            sandbox.stub(global, 'document', {
+                createElement: sandbox.spy(function (name) {
+                    return {
+                        hasAttribute: sinon.stub(),
+                        getAttribute: sinon.stub(),
+                        setAttribute: sinon.spy(),
+                        removeAttribute: sinon.spy(),
+                        querySelectorAll: sinon.stub().returns([]),
+                        tagName: name.toUpperCase()
+                    };
+                })
+            });
+        });
 
-        it('should trigger connected callback if the node is in the document');
-        it('should trigger connected callback after the attributes callbacks');
+        afterEach(() => {
+            sandbox.restore();
+        });
 
-        // This may not be fully conforming but trying our best
-        // https://w3c.github.io/webcomponents/spec/custom/#dfn-callback-queue
-        it('should trigger trigger the callbacks batched together after gathering all the nodes');
+        it('should not do any attribute callbacks if the node is detached', () => {
+            const spy = sinon.spy();
+            hook.define('foo-bar', {
+                observedAttributes: ['attr1', 'attr2'],
+                attributeChangedCallback: spy
+            });
+            const node = hook.create('foo-bar', {
+                'attr1': 'buzz'
+            });
+            hook.upgrade(node);
+            assert.strictEqual(spy.callCount, 0);
+        });
+
+        it('should trigger the callbacks for all the observed attributes', () => {
+            const spy = sinon.spy();
+            hook.define('foo-bar', {
+                observedAttributes: ['attr1', 'attr2'],
+                attributeChangedCallback: spy
+            });
+            const node = hook.create('foo-bar', {
+                'attr1': 'buzz',
+                'attr2': 'buzz'
+            });
+            node.getAttribute.returns('buzz');
+            node.parentNode = document;
+
+            hook.upgrade(node);
+            assert.deepEqual(spy.firstCall.args, ['attr1', 'buzz', null]);
+            assert.deepEqual(spy.secondCall.args, ['attr2', 'buzz', null]);
+        });
+
+        it('should trigger connected callback if the node is in the document', () => {
+            const spy = sinon.spy();
+            hook.define('foo-bar', {
+                connectedCallback: spy
+            });
+            const node = hook.create('foo-bar');
+            node.parentNode = document;
+
+            hook.upgrade(node);
+            assert.deepEqual(spy.callCount, 1);
+        });
+
+        it('should work for type extensions', () => {
+            const spy = sinon.spy();
+            hook.define('foo-bar', {
+                extends: 'button',
+                connectedCallback: spy
+            });
+            const node = hook.create('button', { is: 'foo-bar' });
+            node.getAttribute.returns('foo-bar');
+            node.parentNode = document;
+
+            hook.upgrade(node);
+            assert.deepEqual(spy.callCount, 1);
+        });
+
+        it('should upgrade nested nodes', () => {
+            const spy = sinon.spy();
+            hook.define('foo-bar', { connectedCallback: spy });
+            hook.define('foo-buzz', { connectedCallback: spy });
+
+            const node = hook.create('foo-bar');
+            node.parentNode = document;
+
+            const customChild = hook.create('foo-buzz');
+            const regularChild = hook.create('div');
+
+            node.querySelectorAll.returns(
+                { 0: regularChild, 1: customChild, length: 2 } // emulating NodeList
+            );
+
+            hook.upgrade(node);
+            assert.deepEqual(spy.callCount, 2);
+        });
+    });
+
+
+    describe('misc', () => {
+        it('should construct correct query for all custom elements', () => {
+            hook.define('foo-bar');
+            assert.strictEqual(hook.query, 'foo-bar');
+            hook.define('foo-is', { extends: 'button' });
+            assert.strictEqual(hook.query, 'foo-bar,[is="foo-is"]');
+            hook.define('foo-buzz');
+            assert.strictEqual(hook.query, 'foo-bar,[is="foo-is"],foo-buzz');
+        });
     });
 
 });
