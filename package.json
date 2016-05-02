@@ -1,0 +1,33 @@
+{
+  "name": "mendeleev",
+  "version": "0.1.0",
+  "description": "A lightweight custom-element-like hook for use with existing frameworks",
+  "main": "lib/index.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "eslint": "2.2.0",
+    "mocha": "2.4.5",
+    "sinon": "^1.17.3"
+  },
+  "scripts": {
+    "lint": "eslint src test",
+    "test": "mocha test",
+    "tdd": "mocha --watch test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://github.bus..com/grassator/mendeleev.git"
+  },
+  "keywords": [
+    "web",
+    "w3c",
+    "components",
+    "web-components",
+    "custom-elements"
+  ],
+  "author": "Dmitriy Kubyshkin <dmitriy@kubyshkin.name>",
+  "license": "MIT"
+}
