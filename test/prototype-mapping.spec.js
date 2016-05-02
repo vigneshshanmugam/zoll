@@ -1,15 +1,16 @@
 'use strict';
 
 
-const mapping = require('../lib/prototype-mapping');
+const Mapping = require('../lib/prototype-mapping');
 const assert = require('assert');
 const sinon = require('sinon');
 
 describe('Prototype Mapping', () => {
     let sandbox;
+    let mapping;
 
     beforeEach(() => {
-        mapping.reset();
+        mapping = new Mapping();
         sandbox = sinon.sandbox.create();
         global.document = typeof document === 'undefined' ? null : document;
         sandbox.stub(global, 'document', {
