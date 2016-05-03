@@ -40,6 +40,13 @@ describe('Hook', () => {
                 });
             });
 
+            it('should throw when trying to define an element more than once', () => {
+                hook.define('foo-bar');
+                assert.throws(() => {
+                    hook.define('foo-bar');
+                }, Error);
+            });
+
         });
 
 
