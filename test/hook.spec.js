@@ -5,6 +5,10 @@ const PrototypeMapping = require('../lib/prototype-mapping');
 const assert = require('assert');
 const sinon = require('sinon');
 
+const validCustomTags = ['foo-bar', 'a-----', 'a-.', 'a-', 'a-\uD83D\uDE31'];
+const invalidCustomTags = ['', '1-foo', '-foo'];
+const invalidNativeTag = 'invalidtag';
+
 require('../dev/dom');
 
 describe('Hook', () => {
@@ -27,13 +31,11 @@ describe('Hook', () => {
         describe('custom tags', () => {
 
             it('should allow to define a custom elements with a valid name', () => {
-                ['foo-bar', 'a-----', 'a-.', 'a-', 'a-\uD83D\uDE31'].forEach((tagName) => {
-                    hook.define(tagName);
-                });
+                validCustomTags.forEach((tagName) => hook.define(tagName));
             });
 
             it('should throw when trying to define an element with an invalid name', () => {
-                ['', 'foo', '1-foo', '-foo'].forEach((tagName) => {
+                invalidCustomTags.concat([invalidNativeTag]).forEach((tagName) => {
                     assert.throws(() => hook.define(tagName), Error);
                 });
             });
@@ -47,19 +49,19 @@ describe('Hook', () => {
             it('should throw when trying to define an extension of a non-native element', () => {
                 assert.throws(() => {
                     hook.define('foo-bar', {extends: 'not-an-element'});
-                });
+                }, Error);
             });
 
             it('should throw when trying to define an extension of a an unknown native element', () => {
                 hook.prototypeMapping.get = () => HTMLUnknownElement.prototype;
                 assert.throws(() => {
-                    hook.define('foo-bar', {extends: 'notanelement'});
-                });
+                    hook.define('foo-bar', {extends: invalidNativeTag });
+                }, Error);
             });
 
             it('should allow to define a type extensions with a valid name', () => {
                 hook.prototypeMapping.get = () => HTMLElement.prototype;
-                ['foo-bar', 'a-----', 'a-.', 'a-', 'a-\uD83D\uDE31'].forEach((tagName) => {
+                validCustomTags.forEach((tagName) => {
                     hook.define(tagName, {
                         extends: 'input'
                     });
@@ -68,7 +70,7 @@ describe('Hook', () => {
 
             it('should throw when trying to define an element with an invalid name', () => {
                 hook.prototypeMapping.get = () => HTMLElement.prototype;
-                ['', 'foo', '1-foo', '-foo'].forEach((tagName) => {
+                invalidCustomTags.concat([invalidNativeTag]).forEach((tagName) => {
                     assert.throws(() => hook.define(tagName, { extends: 'input' }), Error);
                 });
             });
@@ -97,7 +99,7 @@ describe('Hook', () => {
             });
 
             it('should allow to create a custom elements with a valid name', () => {
-                ['foo-bar', 'a-----', 'a-.', 'a-', 'a-\uD83D\uDE31'].forEach((tagName) => {
+                validCustomTags.forEach((tagName) => {
                     hook.create(tagName);
                 });
             });
@@ -110,7 +112,7 @@ describe('Hook', () => {
                 DOMException.prototype = Object.create(Error);
                 document.createElement.throws(new DOMException);
 
-                ['', '1-foo', '-foo'].forEach((tagName) => {
+                invalidCustomTags.forEach((tagName) => {
                     assert.throws(() => hook.create(tagName), DOMException);
                 });
             });
@@ -250,7 +252,7 @@ describe('Hook', () => {
             node.getAttribute.returns(null);
 
             hook.setAttribute(node, 'class', 'buzz');
-            assert.deepEqual(spy.callCount, 0);
+            assert.strictEqual(spy.callCount, 0);
         });
 
         it ('should have `getAttribute` method for interface completeness', () => {
@@ -271,7 +273,7 @@ describe('Hook', () => {
     });
 
     // https://w3c.github.io/webcomponents/spec/custom/#upgrades
-    describe('upgrade', () => {
+    describe('connect', () => {
         beforeEach(() => {
             sandbox.stub(global, 'document', {
                 createElement: sandbox.spy(function (name) {
@@ -300,7 +302,7 @@ describe('Hook', () => {
             const node = hook.create('foo-bar', {
                 'attr1': 'buzz'
             });
-            hook.upgrade(node);
+            hook.connect(node);
             assert.strictEqual(spy.callCount, 0);
         });
 
@@ -317,7 +319,7 @@ describe('Hook', () => {
             node.getAttribute.returns('buzz');
             node.parentNode = document;
 
-            hook.upgrade(node);
+            hook.connect(node);
             assert.deepEqual(spy.firstCall.args, ['attr1', 'buzz', null]);
             assert.deepEqual(spy.secondCall.args, ['attr2', 'buzz', null]);
         });
@@ -330,7 +332,7 @@ describe('Hook', () => {
             const node = hook.create('foo-bar');
             node.parentNode = document;
 
-            hook.upgrade(node);
+            hook.connect(node);
             assert.deepEqual(spy.callCount, 1);
         });
 
@@ -344,11 +346,11 @@ describe('Hook', () => {
             node.getAttribute.returns('foo-bar');
             node.parentNode = document;
 
-            hook.upgrade(node);
+            hook.connect(node);
             assert.deepEqual(spy.callCount, 1);
         });
 
-        it('should upgrade nested nodes', () => {
+        it('should connect nested nodes', () => {
             const spy = sinon.spy();
             hook.define('foo-bar', { connectedCallback: spy });
             hook.define('foo-buzz', { connectedCallback: spy });
@@ -363,11 +365,107 @@ describe('Hook', () => {
                 { 0: regularChild, 1: customChild, length: 2 } // emulating NodeList
             );
 
-            hook.upgrade(node);
+            hook.connect(node);
             assert.deepEqual(spy.callCount, 2);
         });
     });
 
+
+    describe('add / remove children', () => {
+        beforeEach(() => {
+            sandbox.stub(global, 'document', {
+                createElement: sandbox.spy(function (name) {
+                    return {
+                        hasAttribute: sinon.stub(),
+                        getAttribute: sinon.stub(),
+                        setAttribute: sinon.spy(),
+                        removeAttribute: sinon.spy(),
+                        querySelectorAll: sinon.stub().returns([]),
+                        tagName: name.toUpperCase()
+                    };
+                })
+            });
+            document.appendChild = sinon.stub();
+            document.removeChild = sinon.stub();
+        });
+
+        afterEach(() => {
+            sandbox.restore();
+        });
+
+        it('should notify when the node is disconnected from the DOM', () => {
+            const spy = sinon.spy();
+            hook.define('foo-bar', { disconnectedCallback: spy });
+            const node = hook.create('foo-bar');
+            node.parentNode = document;
+            hook.remove(node);
+
+            assert.deepEqual(spy.callCount, 1);
+        });
+
+        it('should not notify when the detached node is disconnected from the DOM', () => {
+            const spy = sinon.spy();
+            hook.define('foo-bar', { disconnectedCallback: spy });
+            hook.define('foo-buzz', { disconnectedCallback: spy });
+
+            const node = hook.create('foo-bar');
+            node.removeChild = sinon.spy();
+
+            const customChild = hook.create('foo-buzz');
+            customChild.parentNode = node;
+
+            hook.remove(customChild);
+            assert.deepEqual(spy.callCount, 0);
+            assert(node.removeChild.callCount, 1);
+        });
+
+        it('should be able to notify disconnecting nested nodes', () => {
+            const spy = sinon.spy();
+            hook.define('foo-bar', { disconnectedCallback: spy });
+            hook.define('foo-buzz', { disconnectedCallback: spy });
+
+            const node = hook.create('foo-bar');
+            node.parentNode = document;
+
+            const customChild = hook.create('foo-buzz');
+            const regularChild = hook.create('div');
+
+            node.querySelectorAll.returns(
+                { 0: regularChild, 1: customChild, length: 2 } // emulating NodeList
+            );
+
+            hook.remove(node);
+            assert.deepEqual(spy.callCount, 2);
+        });
+
+        it('should auto call `connect` when the nodes is appended to the DOM', () => {
+            hook.define('foo-bar');
+            hook.connect = sinon.spy();
+
+            const node = hook.create('foo-bar');
+            node.appendChild = sinon.spy();
+            const customChild = hook.create('foo-buzz');
+
+            hook.appendChild(node, customChild);
+            assert.deepEqual(node.appendChild.callCount, 1);
+            assert.deepEqual(hook.connect.callCount, 1);
+            assert.deepEqual(hook.connect.firstCall.args[0], customChild);
+        });
+
+        it('should auto call `connect` when the nodes is inserted into the DOM', () => {
+            hook.define('foo-bar');
+            hook.connect = sinon.spy();
+
+            const node = hook.create('foo-bar');
+            node.insertBefore = sinon.spy();
+            const customChild = hook.create('foo-buzz');
+
+            hook.insertBefore(node, customChild, node.firstChild);
+            assert.deepEqual(node.insertBefore.callCount, 1);
+            assert.deepEqual(hook.connect.callCount, 1);
+            assert.deepEqual(hook.connect.firstCall.args[0], customChild);
+        });
+    });
 
     describe('misc', () => {
         it('should construct correct query for all custom elements', () => {
