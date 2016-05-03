@@ -205,7 +205,7 @@ describe('Hook', () => {
             node.getAttribute.returns(null);
 
             hook.setAttribute(node, 'attr2', 'buzz');
-            assert.deepEqual(spy.firstCall.args, ['attr2', 'buzz', null]);
+            assert.deepEqual(spy.firstCall.args, ['attr2', null, 'buzz']);
             assert.deepEqual(node.setAttribute.firstCall.args, ['attr2', 'buzz']);
         });
 
@@ -222,7 +222,7 @@ describe('Hook', () => {
             node.getAttribute.returns('one');
 
             hook.setAttribute(node, 'attr1', 'two');
-            assert.deepEqual(spy.secondCall.args, ['attr1', 'two', 'one']);
+            assert.deepEqual(spy.secondCall.args, ['attr1', 'one', 'two']);
         });
 
         it ('should notify about removing an observed attribute', () => {
@@ -238,7 +238,7 @@ describe('Hook', () => {
             node.getAttribute.returns('buzz');
 
             hook.removeAttribute(node, 'attr2');
-            assert.deepEqual(spy.secondCall.args, ['attr2', null, 'buzz']);
+            assert.deepEqual(spy.secondCall.args, ['attr2', 'buzz', null]);
             assert.deepEqual(node.removeAttribute.firstCall.args, ['attr2']);
         });
 
@@ -346,8 +346,8 @@ describe('Hook', () => {
             node.parentNode = document;
 
             hook.connect(node);
-            assert.deepEqual(spy.firstCall.args, ['attr1', 'buzz', null]);
-            assert.deepEqual(spy.secondCall.args, ['attr2', 'buzz', null]);
+            assert.deepEqual(spy.firstCall.args, ['attr1', null, 'buzz']);
+            assert.deepEqual(spy.secondCall.args, ['attr2', null, 'buzz']);
         });
 
         it('should trigger connected callback if the node is in the document', () => {
