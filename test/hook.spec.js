@@ -270,6 +270,32 @@ describe('Hook', () => {
             assert.strictEqual(hook.hasAttribute(node, 'class'), true);
         });
 
+        it ('should allow manual notification about attribute changes', () => {
+            const spy = sinon.spy();
+            hook.define('foo-bar', {
+                observedAttributes: ['attr1', 'attr2'],
+                attributeChangedCallback: spy
+            });
+            const node = hook.create('foo-bar');
+            hook.forceNotifyAttributeChange(
+                hook.getDescriptor(node), node, 'attr2', null, 'buzz'
+            );
+            assert.deepEqual(spy.firstCall.args, ['attr2', null, 'buzz']);
+        });
+
+        it ('should ugnore unobserved attributes during manual notification', () => {
+            const spy = sinon.spy();
+            hook.define('foo-bar', {
+                observedAttributes: ['attr1', 'attr2'],
+                attributeChangedCallback: spy
+            });
+            const node = hook.create('foo-bar');
+            hook.forceNotifyAttributeChange(
+                hook.getDescriptor(node), node, 'data-foo', null, 'buzz'
+            );
+            assert.deepEqual(spy.callCount, 0);
+        });
+
     });
 
     // https://w3c.github.io/webcomponents/spec/custom/#upgrades
