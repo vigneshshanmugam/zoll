@@ -174,7 +174,11 @@ describe('Hook', () => {
             });
 
         });
+
     });
+
+
+
 
     describe('attribute handling', () => {
         beforeEach(() => {
@@ -206,6 +210,16 @@ describe('Hook', () => {
             assert.throws(() => hook.define('foo-bar', { observedAttributes: function () {} }), Error);
         });
 
+        it('should not add/remove attributes for detached node', () => {
+            hook.define('foo-bar');
+            const node = hook.create('foo-bar');
+            hook.setAttribute(node, 'attr1', 'one');
+            hook.removeAttribute(node, 'attr1');
+
+            assert.strictEqual(node.setAttribute.callCount, 0);
+            assert.strictEqual(node.removeAttribute.callCount, 0);
+        });
+
         it ('should call attributeChangedCallback with element as `this`', () => {
             const spy = sinon.spy();
             hook.define('foo-bar', {
@@ -213,6 +227,7 @@ describe('Hook', () => {
                 attributeChangedCallback: spy
             });
             const node = hook.create('foo-bar');
+            node.parentNode = document;
             hook.setAttribute(node, 'foo', 'buzz');
             assert.strictEqual(spy.firstCall.thisValue, node);
         });
@@ -224,6 +239,7 @@ describe('Hook', () => {
                 attributeChangedCallback: spy
             });
             const node = hook.create('foo-bar');
+            node.parentNode = document;
             node.getAttribute.returns(null);
 
             hook.setAttribute(node, 'attr2', 'buzz');
@@ -238,6 +254,7 @@ describe('Hook', () => {
                 attributeChangedCallback: spy
             });
             const node = hook.create('foo-bar');
+            node.parentNode = document;
             node.getAttribute.returns(null);
 
             hook.setAttribute(node, 'attr1', 'one');
@@ -254,6 +271,7 @@ describe('Hook', () => {
                 attributeChangedCallback: spy
             });
             const node = hook.create('foo-bar');
+            node.parentNode = document;
             node.getAttribute.returns(null);
 
             hook.setAttribute(node, 'attr2', 'buzz');
@@ -305,7 +323,7 @@ describe('Hook', () => {
             assert.deepEqual(spy.firstCall.args, ['attr2', null, 'buzz']);
         });
 
-        it ('should ugnore unobserved attributes during manual notification', () => {
+        it ('should ignore unobserved attributes during manual notification', () => {
             const spy = sinon.spy();
             hook.define('foo-bar', {
                 observedAttributes: ['attr1', 'attr2'],
