@@ -84,6 +84,21 @@ describe('Hook', () => {
 
         });
 
+        describe('lifecycle callbacks', () => {
+
+            it('should throw if the callback is not a function', () => {
+                const options = {
+                    'connectedCallback' : '',
+                    'disconnectedCallback' : () => {}
+                };
+
+                assert.throws(() => {
+                    hook.define('foo-bar', options);
+                }, Error);
+            });
+
+        });
+
     });
 
     describe('create', () => {
