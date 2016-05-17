@@ -1,0 +1,30 @@
+{
+  "name": "mendeleev",
+  "version": "0.0.1",
+  "description": "A lightweight custom-element-like hook for use with existing frameworks",
+  "main": "dist/mendeleev.min.js",
+  "license": "MIT",
+  "keywords": [
+    "components",
+    "web-components",
+    "custom-elements"
+  ],
+  "moduleType": "globals",
+  "private": true,
+  "ignore": [
+    "dev",
+    "node_modules",
+    "bower_components",
+    "test",
+    ".eslintrc",
+    "bower.json",
+    "package.json",
+    ".gitignore",
+    "editorconfig",
+    "gulpfile.js",
+    ".npmignore",
+    "LICENSE",
+    "MAINTAINERS",
+    "README.md"
+  ]
+}

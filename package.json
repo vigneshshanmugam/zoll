@@ -8,14 +8,21 @@
   },
   "dependencies": {},
   "devDependencies": {
+    "browserify": "13.0.1",
     "eslint": "2.2.0",
+    "gulp": "3.9.1",
+    "gulp-rename": "1.2.2",
+    "gulp-streamify": "1.0.2",
+    "gulp-uglify": "1.5.3",
     "mocha": "2.4.5",
-    "sinon": "1.17.3"
+    "sinon": "1.17.3",
+    "vinyl-source-stream": "1.1.0"
   },
   "scripts": {
     "lint": "eslint src test",
     "test": "mocha test",
-    "tdd": "mocha --watch test"
+    "tdd": "mocha --watch test",
+    "build": "gulp build"
   },
   "repository": {
     "type": "git",
