@@ -23,17 +23,14 @@
     "Vignesh Shanmugam <vignesh.shanmugam@zalando.de>"
    ],
   "ignore": [
+    "**/.*",
     "dev",
     "node_modules",
     "bower_components",
     "test",
-    ".eslintrc",
     "bower.json",
     "package.json",
-    ".gitignore",
-    "editorconfig",
     "gulpfile.js",
-    ".npmignore",
     "LICENSE",
     "MAINTAINERS"
   ]
