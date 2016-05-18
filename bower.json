@@ -1,16 +1,27 @@
 {
-  "name": "mendeleev",
-  "version": "0.0.1",
-  "description": "A lightweight custom-element-like hook for use with existing frameworks",
-  "main": "dist/mendeleev.min.js",
+  "name": "zoll",
+  "description": "A lightweight custom-element like hook for use with existing frameworks",
+  "main": "dist/zoll.js",
   "license": "MIT",
   "keywords": [
     "components",
     "web-components",
     "custom-elements"
   ],
-  "moduleType": "globals",
-  "private": true,
+  "moduleType": [
+    "amd",
+    "globals",
+    "node"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zalando-incubator/zoll.git"
+  },
+  "author": "Dmitriy Kubyshkin <dmitriy.kubyshkin@zalando.de>",
+  "contributors": [
+    "Dmitriy Kubyshkin <dmitriy.kubyshkin@zalando.de>",
+    "Vignesh Shanmugam <vignesh.shanmugam@zalando.de>"
+   ],
   "ignore": [
     "dev",
     "node_modules",
@@ -24,7 +35,6 @@
     "gulpfile.js",
     ".npmignore",
     "LICENSE",
-    "MAINTAINERS",
-    "README.md"
+    "MAINTAINERS"
   ]
 }

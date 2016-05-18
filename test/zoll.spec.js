@@ -1,6 +1,6 @@
 'use strict';
 
-const Mendeleev = require('../lib/mendeleev');
+const Zoll = require('../lib/zoll');
 const assert = require('assert');
 const sinon = require('sinon');
 
@@ -10,9 +10,9 @@ const invalidNativeTag = 'invalidtag';
 
 require('../dev/dom');
 
-describe('Mendeleev', () => {
+describe('Zoll', () => {
 
-    let mendeleev;
+    let zoll;
     let sandbox;
 
     before(() => {
@@ -20,7 +20,7 @@ describe('Mendeleev', () => {
     });
 
     beforeEach(() => {
-        mendeleev = new Mendeleev();
+        zoll = new Zoll();
     });
 
     describe('define', () => {
@@ -28,19 +28,19 @@ describe('Mendeleev', () => {
         describe('custom tags', () => {
 
             it('should allow to define a custom elements with a valid name', () => {
-                validCustomTags.forEach((tagName) => mendeleev.define(tagName));
+                validCustomTags.forEach((tagName) => zoll.define(tagName));
             });
 
             it('should throw when trying to define an element with an invalid name', () => {
                 invalidCustomTags.concat([invalidNativeTag]).forEach((tagName) => {
-                    assert.throws(() => mendeleev.define(tagName), Error);
+                    assert.throws(() => zoll.define(tagName), Error);
                 });
             });
 
             it('should throw when trying to define an element more than once', () => {
-                mendeleev.define('foo-bar');
+                zoll.define('foo-bar');
                 assert.throws(() => {
-                    mendeleev.define('foo-bar');
+                    zoll.define('foo-bar');
                 }, Error);
             });
 
@@ -63,7 +63,7 @@ describe('Mendeleev', () => {
 
             it('should throw when trying to define an extension of a non-native element', () => {
                 assert.throws(() => {
-                    mendeleev.define('foo-bar', {extends: 'not-an-element'});
+                    zoll.define('foo-bar', {extends: 'not-an-element'});
                 }, Error);
             });
 
@@ -73,7 +73,7 @@ describe('Mendeleev', () => {
                 global.HTMLUnknownElement.prototype = 'HTMLUnknownElement';
                 document.createElement.returns(createdElement);
                 assert.throws(() => {
-                    mendeleev.define('foo-bar', {extends: invalidNativeTag });
+                    zoll.define('foo-bar', {extends: invalidNativeTag });
                 }, Error);
             });
 
@@ -81,7 +81,7 @@ describe('Mendeleev', () => {
                 const createdElement = {};
                 document.createElement.returns(createdElement);
                 validCustomTags.forEach((tagName) => {
-                    mendeleev.define(tagName, {
+                    zoll.define(tagName, {
                         extends: 'input'
                     });
                 });
@@ -89,7 +89,7 @@ describe('Mendeleev', () => {
 
             it('should throw when trying to define an element with an invalid name', () => {
                 invalidCustomTags.concat([invalidNativeTag]).forEach((tagName) => {
-                    assert.throws(() => mendeleev.define(tagName, { extends: 'input' }), Error);
+                    assert.throws(() => zoll.define(tagName, { extends: 'input' }), Error);
                 });
             });
 
@@ -104,7 +104,7 @@ describe('Mendeleev', () => {
                 };
 
                 assert.throws(() => {
-                    mendeleev.define('foo-bar', options);
+                    zoll.define('foo-bar', options);
                 }, Error);
             });
 
@@ -128,25 +128,25 @@ describe('Mendeleev', () => {
             it('should just call document.createElement when it is not a custom element', () => {
                 const createdElement = {};
                 document.createElement.returns(createdElement);
-                assert.strictEqual(mendeleev.create('div'), createdElement);
+                assert.strictEqual(zoll.create('div'), createdElement);
             });
 
             it('should allow to create a custom elements with a valid name', () => {
                 validCustomTags.forEach((tagName) => {
-                    mendeleev.create(tagName);
+                    zoll.create(tagName);
                 });
             });
 
             it('should throw when called with an invalid name', () => {
                 // This is not a very useful test but it's still there to show that
                 // it is a responsibility of document.createElement to throw
-                // and that mendeleev should propagate the error.
+                // and that zoll should propagate the error.
                 function DOMException() {}
                 DOMException.prototype = Object.create(Error);
                 document.createElement.throws(new DOMException);
 
                 invalidCustomTags.forEach((tagName) => {
-                    assert.throws(() => mendeleev.create(tagName), DOMException);
+                    assert.throws(() => zoll.create(tagName), DOMException);
                 });
             });
 
@@ -159,7 +159,7 @@ describe('Mendeleev', () => {
                     setAttribute: sinon.spy()
                 };
                 document.createElement.returns(createdElement);
-                assert.strictEqual(mendeleev.create('a', {
+                assert.strictEqual(zoll.create('a', {
                     class: 'foo',
                     href: 'https://tech.zalando.com',
                     title: 'Zalando'
@@ -172,7 +172,7 @@ describe('Mendeleev', () => {
                     setAttribute: sinon.spy()
                 };
                 document.createElement.returns(createdElement);
-                assert.strictEqual(mendeleev.create('button', { is: 'foo-button' }), createdElement);
+                assert.strictEqual(zoll.create('button', { is: 'foo-button' }), createdElement);
                 assert.strictEqual(createdElement.setAttribute.callCount, 1);
             });
 
@@ -181,7 +181,7 @@ describe('Mendeleev', () => {
                     setAttribute: sinon.spy()
                 };
                 document.createElement.returns(createdElement);
-                assert.strictEqual(mendeleev.create('button', { is: '---button' }), createdElement);
+                assert.strictEqual(zoll.create('button', { is: '---button' }), createdElement);
             });
 
         });
@@ -211,21 +211,21 @@ describe('Mendeleev', () => {
         });
 
         it ('should throw if `observedAttributes` is not an array', () => {
-            assert.throws(() => mendeleev.define('foo-bar', { observedAttributes: true }), Error);
-            assert.throws(() => mendeleev.define('foo-bar', { observedAttributes: false }), Error);
-            assert.throws(() => mendeleev.define('foo-bar', { observedAttributes: null }), Error);
-            assert.throws(() => mendeleev.define('foo-bar', { observedAttributes: {} }), Error);
+            assert.throws(() => zoll.define('foo-bar', { observedAttributes: true }), Error);
+            assert.throws(() => zoll.define('foo-bar', { observedAttributes: false }), Error);
+            assert.throws(() => zoll.define('foo-bar', { observedAttributes: null }), Error);
+            assert.throws(() => zoll.define('foo-bar', { observedAttributes: {} }), Error);
 
             // The standard actually expects a static function, but we can allow
             // such usage later. For now static will allow better performance.
-            assert.throws(() => mendeleev.define('foo-bar', { observedAttributes: function () {} }), Error);
+            assert.throws(() => zoll.define('foo-bar', { observedAttributes: function () {} }), Error);
         });
 
         it('should not add/remove attributes for detached node', () => {
-            mendeleev.define('foo-bar');
-            const node = mendeleev.create('foo-bar');
-            mendeleev.setAttribute(node, 'attr1', 'one');
-            mendeleev.removeAttribute(node, 'attr1');
+            zoll.define('foo-bar');
+            const node = zoll.create('foo-bar');
+            zoll.setAttribute(node, 'attr1', 'one');
+            zoll.removeAttribute(node, 'attr1');
 
             assert.strictEqual(node.setAttribute.callCount, 0);
             assert.strictEqual(node.removeAttribute.callCount, 0);
@@ -233,116 +233,116 @@ describe('Mendeleev', () => {
 
         it ('should call attributeChangedCallback with element as `this`', () => {
             const spy = sinon.spy();
-            mendeleev.define('foo-bar', {
+            zoll.define('foo-bar', {
                 observedAttributes: ['foo'],
                 attributeChangedCallback: spy
             });
-            const node = mendeleev.create('foo-bar');
+            const node = zoll.create('foo-bar');
             node.parentNode = document;
-            mendeleev.setAttribute(node, 'foo', 'buzz');
+            zoll.setAttribute(node, 'foo', 'buzz');
             assert.strictEqual(spy.firstCall.thisValue, node);
         });
 
         it ('should notify about adding an observed attribute', () => {
             const spy = sinon.spy();
-            mendeleev.define('foo-bar', {
+            zoll.define('foo-bar', {
                 observedAttributes: ['attr1', 'attr2'],
                 attributeChangedCallback: spy
             });
-            const node = mendeleev.create('foo-bar');
+            const node = zoll.create('foo-bar');
             node.parentNode = document;
             node.getAttribute.returns(null);
 
-            mendeleev.setAttribute(node, 'attr2', 'buzz');
+            zoll.setAttribute(node, 'attr2', 'buzz');
             assert.deepEqual(spy.firstCall.args, ['attr2', null, 'buzz']);
             assert.deepEqual(node.setAttribute.firstCall.args, ['attr2', 'buzz']);
         });
 
         it ('should notify about changing an observed attribute', () => {
             const spy = sinon.spy();
-            mendeleev.define('foo-bar', {
+            zoll.define('foo-bar', {
                 observedAttributes: ['attr1', 'attr2'],
                 attributeChangedCallback: spy
             });
-            const node = mendeleev.create('foo-bar');
+            const node = zoll.create('foo-bar');
             node.parentNode = document;
             node.getAttribute.returns(null);
 
-            mendeleev.setAttribute(node, 'attr1', 'one');
+            zoll.setAttribute(node, 'attr1', 'one');
             node.getAttribute.returns('one');
 
-            mendeleev.setAttribute(node, 'attr1', 'two');
+            zoll.setAttribute(node, 'attr1', 'two');
             assert.deepEqual(spy.secondCall.args, ['attr1', 'one', 'two']);
         });
 
         it ('should notify about removing an observed attribute', () => {
             const spy = sinon.spy();
-            mendeleev.define('foo-bar', {
+            zoll.define('foo-bar', {
                 observedAttributes: ['attr1', 'attr2'],
                 attributeChangedCallback: spy
             });
-            const node = mendeleev.create('foo-bar');
+            const node = zoll.create('foo-bar');
             node.parentNode = document;
             node.getAttribute.returns(null);
 
-            mendeleev.setAttribute(node, 'attr2', 'buzz');
+            zoll.setAttribute(node, 'attr2', 'buzz');
             node.getAttribute.returns('buzz');
 
-            mendeleev.removeAttribute(node, 'attr2');
+            zoll.removeAttribute(node, 'attr2');
             assert.deepEqual(spy.secondCall.args, ['attr2', 'buzz', null]);
             assert.deepEqual(node.removeAttribute.firstCall.args, ['attr2']);
         });
 
         it ('should ignore non-observed attributes', () => {
             const spy = sinon.spy();
-            mendeleev.define('foo-bar', {
+            zoll.define('foo-bar', {
                 observedAttributes: ['attr1', 'attr2'],
                 attributeChangedCallback: spy
             });
-            const node = mendeleev.create('foo-bar');
+            const node = zoll.create('foo-bar');
             node.getAttribute.returns(null);
 
-            mendeleev.setAttribute(node, 'class', 'buzz');
+            zoll.setAttribute(node, 'class', 'buzz');
             assert.strictEqual(spy.callCount, 0);
         });
 
         it ('should have `getAttribute` method for interface completeness', () => {
-            mendeleev.define('foo-bar');
-            const node = mendeleev.create('foo-bar');
+            zoll.define('foo-bar');
+            const node = zoll.create('foo-bar');
             node.setAttribute('class', 'buzz');
             node.getAttribute.returns('buzz');
-            assert.strictEqual(mendeleev.getAttribute(node, 'class'), 'buzz');
+            assert.strictEqual(zoll.getAttribute(node, 'class'), 'buzz');
         });
 
         it ('should have `hasAttribute` method for interface completeness', () => {
-            mendeleev.define('foo-bar');
-            const node = mendeleev.create('foo-bar');
+            zoll.define('foo-bar');
+            const node = zoll.create('foo-bar');
             node.hasAttribute.returns(true);
-            assert.strictEqual(mendeleev.hasAttribute(node, 'class'), true);
+            assert.strictEqual(zoll.hasAttribute(node, 'class'), true);
         });
 
         it ('should allow manual notification about attribute changes', () => {
             const spy = sinon.spy();
-            mendeleev.define('foo-bar', {
+            zoll.define('foo-bar', {
                 observedAttributes: ['attr1', 'attr2'],
                 attributeChangedCallback: spy
             });
-            const node = mendeleev.create('foo-bar');
-            mendeleev.forceNotifyAttributeChange(
-                mendeleev.getDescriptor(node), node, 'attr2', null, 'buzz'
+            const node = zoll.create('foo-bar');
+            zoll.forceNotifyAttributeChange(
+                zoll.getDescriptor(node), node, 'attr2', null, 'buzz'
             );
             assert.deepEqual(spy.firstCall.args, ['attr2', null, 'buzz']);
         });
 
         it ('should ignore unobserved attributes during manual notification', () => {
             const spy = sinon.spy();
-            mendeleev.define('foo-bar', {
+            zoll.define('foo-bar', {
                 observedAttributes: ['attr1', 'attr2'],
                 attributeChangedCallback: spy
             });
-            const node = mendeleev.create('foo-bar');
-            mendeleev.forceNotifyAttributeChange(
-                mendeleev.getDescriptor(node), node, 'data-foo', null, 'buzz'
+            const node = zoll.create('foo-bar');
+            zoll.forceNotifyAttributeChange(
+                zoll.getDescriptor(node), node, 'data-foo', null, 'buzz'
             );
             assert.deepEqual(spy.callCount, 0);
         });
@@ -372,77 +372,77 @@ describe('Mendeleev', () => {
 
         it('should not do any attribute callbacks if the node is detached', () => {
             const spy = sinon.spy();
-            mendeleev.define('foo-bar', {
+            zoll.define('foo-bar', {
                 observedAttributes: ['attr1', 'attr2'],
                 attributeChangedCallback: spy
             });
-            const node = mendeleev.create('foo-bar', {
+            const node = zoll.create('foo-bar', {
                 'attr1': 'buzz'
             });
-            mendeleev.connect(node);
+            zoll.connect(node);
             assert.strictEqual(spy.callCount, 0);
         });
 
         it('should trigger the callbacks for all the observed attributes', () => {
             const spy = sinon.spy();
-            mendeleev.define('foo-bar', {
+            zoll.define('foo-bar', {
                 observedAttributes: ['attr1', 'attr2'],
                 attributeChangedCallback: spy
             });
-            const node = mendeleev.create('foo-bar', {
+            const node = zoll.create('foo-bar', {
                 'attr1': 'buzz',
                 'attr2': 'buzz'
             });
             node.getAttribute.returns('buzz');
             node.parentNode = document;
 
-            mendeleev.connect(node);
+            zoll.connect(node);
             assert.deepEqual(spy.firstCall.args, ['attr1', null, 'buzz']);
             assert.deepEqual(spy.secondCall.args, ['attr2', null, 'buzz']);
         });
 
         it('should trigger connected callback if the node is in the document', () => {
             const spy = sinon.spy();
-            mendeleev.define('foo-bar', {
+            zoll.define('foo-bar', {
                 connectedCallback: spy
             });
-            const node = mendeleev.create('foo-bar');
+            const node = zoll.create('foo-bar');
             node.parentNode = document;
 
-            mendeleev.connect(node);
+            zoll.connect(node);
             assert.deepEqual(spy.callCount, 1);
         });
 
         it('should work for type extensions', () => {
             const spy = sinon.spy();
-            mendeleev.define('foo-bar', {
+            zoll.define('foo-bar', {
                 extends: 'button',
                 connectedCallback: spy
             });
-            const node = mendeleev.create('button', { is: 'foo-bar' });
+            const node = zoll.create('button', { is: 'foo-bar' });
             node.getAttribute.returns('foo-bar');
             node.parentNode = document;
 
-            mendeleev.connect(node);
+            zoll.connect(node);
             assert.deepEqual(spy.callCount, 1);
         });
 
         it('should connect nested nodes', () => {
             const spy = sinon.spy();
-            mendeleev.define('foo-bar', { connectedCallback: spy });
-            mendeleev.define('foo-buzz', { connectedCallback: spy });
+            zoll.define('foo-bar', { connectedCallback: spy });
+            zoll.define('foo-buzz', { connectedCallback: spy });
 
-            const node = mendeleev.create('foo-bar');
+            const node = zoll.create('foo-bar');
             node.parentNode = document;
 
-            const customChild = mendeleev.create('foo-buzz');
-            const regularChild = mendeleev.create('div');
+            const customChild = zoll.create('foo-buzz');
+            const regularChild = zoll.create('div');
 
             node.querySelectorAll.returns(
                 { 0: regularChild, 1: customChild, length: 2 } // emulating NodeList
             );
 
-            mendeleev.connect(node);
+            zoll.connect(node);
             assert.deepEqual(spy.callCount, 2);
         });
     });
@@ -472,86 +472,86 @@ describe('Mendeleev', () => {
 
         it('should notify when the node is disconnected from the DOM', () => {
             const spy = sinon.spy();
-            mendeleev.define('foo-bar', { disconnectedCallback: spy });
-            const node = mendeleev.create('foo-bar');
+            zoll.define('foo-bar', { disconnectedCallback: spy });
+            const node = zoll.create('foo-bar');
             node.parentNode = document;
-            mendeleev.remove(node);
+            zoll.remove(node);
 
             assert.deepEqual(spy.callCount, 1);
         });
 
         it('should not notify when the detached node is disconnected from the DOM', () => {
             const spy = sinon.spy();
-            mendeleev.define('foo-bar', { disconnectedCallback: spy });
-            mendeleev.define('foo-buzz', { disconnectedCallback: spy });
+            zoll.define('foo-bar', { disconnectedCallback: spy });
+            zoll.define('foo-buzz', { disconnectedCallback: spy });
 
-            const node = mendeleev.create('foo-bar');
+            const node = zoll.create('foo-bar');
             node.removeChild = sinon.spy();
 
-            const customChild = mendeleev.create('foo-buzz');
+            const customChild = zoll.create('foo-buzz');
             customChild.parentNode = node;
 
-            mendeleev.remove(customChild);
+            zoll.remove(customChild);
             assert.deepEqual(spy.callCount, 0);
             assert(node.removeChild.callCount, 1);
         });
 
         it('should be able to notify disconnecting nested nodes', () => {
             const spy = sinon.spy();
-            mendeleev.define('foo-bar', { disconnectedCallback: spy });
-            mendeleev.define('foo-buzz', { disconnectedCallback: spy });
+            zoll.define('foo-bar', { disconnectedCallback: spy });
+            zoll.define('foo-buzz', { disconnectedCallback: spy });
 
-            const node = mendeleev.create('foo-bar');
+            const node = zoll.create('foo-bar');
             node.parentNode = document;
 
-            const customChild = mendeleev.create('foo-buzz');
-            const regularChild = mendeleev.create('div');
+            const customChild = zoll.create('foo-buzz');
+            const regularChild = zoll.create('div');
 
             node.querySelectorAll.returns(
                 { 0: regularChild, 1: customChild, length: 2 } // emulating NodeList
             );
 
-            mendeleev.remove(node);
+            zoll.remove(node);
             assert.deepEqual(spy.callCount, 2);
         });
 
         it('should auto call `connect` when the nodes is appended to the DOM', () => {
-            mendeleev.define('foo-bar');
-            mendeleev.connect = sinon.spy();
+            zoll.define('foo-bar');
+            zoll.connect = sinon.spy();
 
-            const node = mendeleev.create('foo-bar');
+            const node = zoll.create('foo-bar');
             node.appendChild = sinon.spy();
-            const customChild = mendeleev.create('foo-buzz');
+            const customChild = zoll.create('foo-buzz');
 
-            mendeleev.appendChild(node, customChild);
+            zoll.appendChild(node, customChild);
             assert.deepEqual(node.appendChild.callCount, 1);
-            assert.deepEqual(mendeleev.connect.callCount, 1);
-            assert.deepEqual(mendeleev.connect.firstCall.args[0], customChild);
+            assert.deepEqual(zoll.connect.callCount, 1);
+            assert.deepEqual(zoll.connect.firstCall.args[0], customChild);
         });
 
         it('should auto call `connect` when the nodes is inserted into the DOM', () => {
-            mendeleev.define('foo-bar');
-            mendeleev.connect = sinon.spy();
+            zoll.define('foo-bar');
+            zoll.connect = sinon.spy();
 
-            const node = mendeleev.create('foo-bar');
+            const node = zoll.create('foo-bar');
             node.insertBefore = sinon.spy();
-            const customChild = mendeleev.create('foo-buzz');
+            const customChild = zoll.create('foo-buzz');
 
-            mendeleev.insertBefore(node, customChild, node.firstChild);
+            zoll.insertBefore(node, customChild, node.firstChild);
             assert.deepEqual(node.insertBefore.callCount, 1);
-            assert.deepEqual(mendeleev.connect.callCount, 1);
-            assert.deepEqual(mendeleev.connect.firstCall.args[0], customChild);
+            assert.deepEqual(zoll.connect.callCount, 1);
+            assert.deepEqual(zoll.connect.firstCall.args[0], customChild);
         });
     });
 
     describe('misc', () => {
         it('should construct correct query for all custom elements', () => {
-            mendeleev.define('foo-bar');
-            assert.strictEqual(mendeleev.query, 'foo-bar');
-            mendeleev.define('foo-is', { extends: 'button' });
-            assert.strictEqual(mendeleev.query, 'foo-bar,[is="foo-is"]');
-            mendeleev.define('foo-buzz');
-            assert.strictEqual(mendeleev.query, 'foo-bar,[is="foo-is"],foo-buzz');
+            zoll.define('foo-bar');
+            assert.strictEqual(zoll.query, 'foo-bar');
+            zoll.define('foo-is', { extends: 'button' });
+            assert.strictEqual(zoll.query, 'foo-bar,[is="foo-is"]');
+            zoll.define('foo-buzz');
+            assert.strictEqual(zoll.query, 'foo-bar,[is="foo-is"],foo-buzz');
         });
     });
 

@@ -1,3 +1,11 @@
+(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.zoll = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+'use strict';
+
+var Zoll = require('./zoll');
+
+module.exports = new Zoll();
+
+},{"./zoll":2}],2:[function(require,module,exports){
 'use strict';
 
 // Based on Custom Element Spec
@@ -63,7 +71,7 @@ function validateLifecycleCallbacks(options) {
  * @param {object} options
  * @constructor
  */
-function Mendeleev() {
+function Zoll() {
     this.registry = Object.create(null);
     this.query = '';
 }
@@ -74,7 +82,7 @@ function Mendeleev() {
  * @param {string} tagName
  * @param {object} options
  */
-Mendeleev.prototype.define = function (tagName, options) {
+Zoll.prototype.define = function (tagName, options) {
     var descriptor = {};
     var selector = tagName;
 
@@ -125,7 +133,7 @@ Mendeleev.prototype.define = function (tagName, options) {
  * @throws DOMException
  * @returns {Element}
  */
-Mendeleev.prototype.create = function (tagName, attributes) {
+Zoll.prototype.create = function (tagName, attributes) {
     var el = document.createElement(tagName);
     if (typeof attributes === 'object') {
         for (var attr in attributes) {
@@ -144,7 +152,7 @@ Mendeleev.prototype.create = function (tagName, attributes) {
  * @param {string} attributeName
  * @param {*} attributeValue
  */
-Mendeleev.prototype.setAttribute = function (node, attributeName, attributeValue) {
+Zoll.prototype.setAttribute = function (node, attributeName, attributeValue) {
     var descriptor = this.getDescriptor(node);
     var oldValue;
 
@@ -167,7 +175,7 @@ Mendeleev.prototype.setAttribute = function (node, attributeName, attributeValue
  * @param {Element} node
  * @param {string} attributeName
  */
-Mendeleev.prototype.removeAttribute = function (node, attributeName) {
+Zoll.prototype.removeAttribute = function (node, attributeName) {
     var descriptor = this.getDescriptor(node);
     var oldValue;
 
@@ -190,7 +198,7 @@ Mendeleev.prototype.removeAttribute = function (node, attributeName) {
  * @param {string} attributeName
  * @returns {string|null}
  */
-Mendeleev.prototype.getAttribute = function (node, attributeName) {
+Zoll.prototype.getAttribute = function (node, attributeName) {
     return node.getAttribute(attributeName);
 };
 
@@ -200,7 +208,7 @@ Mendeleev.prototype.getAttribute = function (node, attributeName) {
  * @param {string} attributeName
  * @returns {boolean}
  */
-Mendeleev.prototype.hasAttribute = function (node, attributeName) {
+Zoll.prototype.hasAttribute = function (node, attributeName) {
     return node.hasAttribute(attributeName);
 };
 
@@ -215,7 +223,7 @@ Mendeleev.prototype.hasAttribute = function (node, attributeName) {
  *
  * @param {Element} root
  */
-Mendeleev.prototype.connect = function (root) {
+Zoll.prototype.connect = function (root) {
     if (isDetached(root)) {
         return;
     }
@@ -230,7 +238,7 @@ Mendeleev.prototype.connect = function (root) {
  * @param {Node} parent
  * @param {Element} child
  */
-Mendeleev.prototype.appendChild = function (parent, child) {
+Zoll.prototype.appendChild = function (parent, child) {
     parent.appendChild(child);
     this.connect(child);
 };
@@ -241,7 +249,7 @@ Mendeleev.prototype.appendChild = function (parent, child) {
  * @param {Node} parent
  * @param {Element} child
  */
-Mendeleev.prototype.insertBefore = function (parent, child, reference) {
+Zoll.prototype.insertBefore = function (parent, child, reference) {
     parent.insertBefore(child, reference);
     this.connect(child);
 };
@@ -250,7 +258,7 @@ Mendeleev.prototype.insertBefore = function (parent, child, reference) {
  * Removes the node from it's parent if one exists
  * @param {Element} el
  */
-Mendeleev.prototype.remove = function (el) {
+Zoll.prototype.remove = function (el) {
     if (!el.parentNode) {
         return;
     }
@@ -270,7 +278,7 @@ Mendeleev.prototype.remove = function (el) {
  *
  * @param {Element} el
  */
-Mendeleev.prototype.forceDisconnectChildren = function (el) {
+Zoll.prototype.forceDisconnectChildren = function (el) {
     var customChildren = el.querySelectorAll(this.query);
     for (var i = 0, length = customChildren.length; i < length; ++i) {
         this.forceDisconnectNode(customChildren[i]);
@@ -282,7 +290,7 @@ Mendeleev.prototype.forceDisconnectChildren = function (el) {
  *
  * @param {Element} el
  */
-Mendeleev.prototype.forceDisconnectNode = function (el) {
+Zoll.prototype.forceDisconnectNode = function (el) {
     var descriptor = this.getDescriptor(el);
     if (descriptor !== undefined && descriptor.disconnectedCallback) {
         descriptor.disconnectedCallback.call(el);
@@ -294,7 +302,7 @@ Mendeleev.prototype.forceDisconnectNode = function (el) {
  *
  * @param {Element} el
  */
-Mendeleev.prototype.forceConnectChildren = function (el) {
+Zoll.prototype.forceConnectChildren = function (el) {
     var customChildren = el.querySelectorAll(this.query);
     for (var i = 0, length = customChildren.length; i < length; ++i) {
         this.forceConnectNode(customChildren[i]);
@@ -306,7 +314,7 @@ Mendeleev.prototype.forceConnectChildren = function (el) {
  *
  * @param {Element} el
  */
-Mendeleev.prototype.forceConnectNode = function (el) {
+Zoll.prototype.forceConnectNode = function (el) {
     var descriptor = this.getDescriptor(el);
     if (descriptor === undefined) {
         return;
@@ -338,13 +346,17 @@ Mendeleev.prototype.forceConnectNode = function (el) {
  * @param {string|null} oldValue
  * @param {string|null} attributeValue
  */
-Mendeleev.prototype.forceNotifyAttributeChange = function (descriptor, el, attributeName, oldValue, attributeValue) {
+Zoll.prototype.forceNotifyAttributeChange = function (descriptor, el, attributeName, oldValue, attributeValue) {
     if (descriptor.attributeChangedCallback && (attributeName in descriptor.observedAttributeMap)) {
         descriptor.attributeChangedCallback.call(el, attributeName, oldValue, attributeValue);
     }
 };
 
-Mendeleev.prototype.getDescriptor = function (node) {
+/**
+* Retrives the custom element from the registry if defined.
+* @param {Node} node
+**/
+Zoll.prototype.getDescriptor = function (node) {
     var descriptor = this.registry[node.tagName];
     if (!descriptor) {
         var is = node.getAttribute('is');
@@ -355,4 +367,7 @@ Mendeleev.prototype.getDescriptor = function (node) {
     return descriptor;
 };
 
-module.exports = Mendeleev;
+module.exports = Zoll;
+
+},{}]},{},[1])(1)
+});

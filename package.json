@@ -1,5 +1,5 @@
 {
-  "name": "mendeleev",
+  "name": "zoll",
   "version": "0.1.0",
   "description": "A lightweight custom-element-like hook for use with existing frameworks",
   "main": "lib/index.js",
@@ -26,7 +26,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://github.bus..com/grassator/mendeleev.git"
+    "url": "git+ssh://github.com:zalando-incubator/zoll.git"
   },
   "keywords": [
     "web",

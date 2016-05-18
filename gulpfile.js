@@ -11,14 +11,16 @@ gulp.task('build', function () {
 
     var options = {
         entries: './lib/index.js',
-        standalone: 'mendeleev'
+        standalone: 'zoll'
     };
     var bundleStream = browserify(options).bundle();
 
     return bundleStream
-        .pipe(source('mendeleev.js'))
+        .pipe(source('zoll.js'))
         .pipe(gulp.dest('./dist'))
         .pipe(streamify(uglify()))
-        .pipe(rename('mendeleev.min.js'))
+        .pipe(rename('zoll.min.js'))
         .pipe(gulp.dest('./dist'));
 });
+
+gulp.task('default', ['build']);
