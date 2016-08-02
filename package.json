@@ -1,6 +1,6 @@
 {
   "name": "zoll",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A lightweight custom-element-like hook for use with existing frameworks",
   "main": "lib/index.js",
   "directories": {
@@ -26,7 +26,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "ssh://git@github.com:zalando-incubator/zoll.git"
+    "url": "https://github.com/zalando-incubator/zoll"
   },
   "keywords": [
     "web",
