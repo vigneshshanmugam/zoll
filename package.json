@@ -26,7 +26,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://github.com:zalando-incubator/zoll.git"
+    "url": "ssh://git@github.com:zalando-incubator/zoll.git"
   },
   "keywords": [
     "web",
